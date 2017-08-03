@@ -68,3 +68,46 @@ class Query(graphene.AbstractType):
             return User.objects.get(username=username)
 
         return None
+
+
+class CreateTodo(graphene.Mutation):
+    class Input:
+        title = graphene.String()
+        body = graphene.String()
+        completed = graphene.Boolean()
+        creator_username = graphene.String()
+        creator_id = graphene.Int()
+
+    ok = graphene.Boolean()
+    todo = graphene.Field(TodoType)
+
+    @staticmethod
+    def mutate(root, args, context, info):
+        title = args.get('title')
+        body = args.get('body')
+        completed = args.get('completed')
+        creator_username = args.get('creator_username')
+        creator_id = args.get('creator_id')
+        creator = None
+
+        if creator_username:
+            creator = User.objects.get(username=creator_username)
+        else:
+            creator = User.objects.get(pk=creator_id)
+
+        ok = True
+        constr_args = dict(
+            title=title,
+            body=body,
+            completed=completed,
+            creator=creator,
+        )
+        todo = TodoType(**constr_args)
+
+        todoModel = Todo(**constr_args)
+        todoModel.save()
+
+        return CreateTodo(ok=ok, todo=todo)
+
+class TodoMutations(graphene.ObjectType):
+    create_todo = CreateTodo.Field()
