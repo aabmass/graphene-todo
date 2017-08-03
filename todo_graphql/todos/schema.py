@@ -14,11 +14,57 @@ class UserType(DjangoObjectType):
 
 
 class Query(graphene.AbstractType):
-    all_todos = graphene.List(TodoType)
-    all_users = graphene.List(UserType)
+    todos = graphene.List(
+        TodoType,
+        completed=graphene.Boolean(),
+    )
+    users = graphene.List(UserType)
 
-    def resolve_all_todos(self, args, context, info):
+    todo = graphene.Field(
+        TodoType,
+        id=graphene.Int(),
+        title=graphene.String(),
+    )
+
+    user = graphene.Field(
+        UserType,
+        id=graphene.Int(),
+        username=graphene.String(),
+    )
+
+    def resolve_todos(self, args, context, info):
+        completed = args.get('completed')
+
+        if completed is not None:
+            return Todo.objects.filter(completed=completed)
+
         return Todo.objects.all()
     
-    def resolve_all_users(self, args, context, info):
+    def resolve_users(self, args, context, info):
         return User.objects.all()
+
+    def resolve_todo(self, args, context, info):
+        id = args.get('id')
+        title = args.get('title')
+        completed = args.get('completed')
+
+        if id is not None:
+            return Todo.objects.get(pk=id)
+        elif title is not None:
+            return Todo.objects.get(title=title)
+        elif completed is not None:
+            return Todo.objects.get(completed=completed)
+
+        return None
+
+
+    def resolve_user(self, args, context, info):
+        id = args.get('id')
+        username = args.get('username')
+
+        if id is not None:
+            return User.objects.get(pk=id)
+        elif username is not None:
+            return User.objects.get(username=username)
+
+        return None
