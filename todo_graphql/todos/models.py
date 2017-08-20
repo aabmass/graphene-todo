@@ -15,3 +15,12 @@ class Todo(models.Model):
 
     def __str__(self):
         return 'Todo: {}'.format(self.title[:20])
+
+    def set_properties(self, **kwargs):
+        """set_properties update properties on model instance, but don't save
+
+        :param **kwargs: properties to update
+        """
+        for key, val in kwargs.items():
+            if val is not None:
+                setattr(self, key, val)
