@@ -39,7 +39,7 @@ class Query(graphene.AbstractType):
         completed = args.get('completed')
         first = args.get('first')
 
-        todos = Todo.objects.all()
+        todos = Todo.objects.all().order_by('-created_on')
 
         if completed is not None:
             todos = todos.filter(completed=completed)
@@ -102,14 +102,17 @@ class CreateTodo(graphene.Mutation):
         body = graphene.NonNull(graphene.String)
         completed = graphene.NonNull(graphene.Boolean)
         creator_username = graphene.String()
-        creator_id = graphene.Int()
+        creator_id = graphene.ID()
 
     todo = graphene.Field(TodoType)
 
     @staticmethod
     def mutate(root, args, context, info):
-        creator_username = args['creator_username']
-        creator_id = args.get['creator_id']
+        creator_username = args.pop('creator_username', None)
+        creator_id = args.pop('creator_id', None)
+
+        print(creator_username)
+        print(creator_id)
 
         if creator_username:
             args['creator'] = User.objects.get(username=creator_username)

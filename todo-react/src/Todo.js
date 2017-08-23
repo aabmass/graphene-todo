@@ -37,7 +37,7 @@ const Todo = ({ todo, mutate }) => {
   }
 
   return (
-    <Card>
+    <Card fluid>
       <Card.Content>
         <Card.Header>{title}</Card.Header>
         <Card.Description>{body}</Card.Description>
@@ -78,8 +78,8 @@ Todo.fragments = {
         lastName
       }
     }
-  `
-}
+  `,
+};
 
 export default graphql(gql`
   mutation UpdateTodo(

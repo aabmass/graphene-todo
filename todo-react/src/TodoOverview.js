@@ -1,11 +1,14 @@
 import React, { Component } from 'react';
 import { gql, graphql } from 'react-apollo';
 import {
+  Grid,
   Segment,
   Divider,
   Checkbox,
 } from 'semantic-ui-react';
+
 import TodoList from './TodoList';
+import NewTodoForm from './NewTodoForm';
 
 class TodoOverview extends Component {
   state = {
@@ -22,7 +25,8 @@ class TodoOverview extends Component {
     const {
       error,
       loading,
-      todos = []
+      todos = [],
+      users = [],
     } = this.props.data;
     const { filterCompleted } = this.state;
 
@@ -31,28 +35,45 @@ class TodoOverview extends Component {
     }
 
     return (
-      <Segment loading={loading}>
-        <p>{todos.length} todos</p>
-        <div>
-          <Checkbox
-            label="Completed"
-            onChange={this._onChangeFilterCompleted}
-            checked={filterCompleted}
-          />
-        </div>
-        <Divider />
-        <TodoList todos={todos} filterCompleted={filterCompleted} />
-      </Segment>
+      <Grid columns={2}>
+        <Grid.Column>
+          <Segment>
+            <NewTodoForm users={users} />
+          </Segment>
+        </Grid.Column>
+        
+        <Grid.Column>
+          <Segment loading={loading}>
+            <p>{todos.length} todos</p>
+            <div>
+              <Checkbox
+                label="Completed"
+                onChange={this._onChangeFilterCompleted}
+                checked={filterCompleted}
+              />
+            </div>
+            <Divider />
+            <TodoList todos={todos} filterCompleted={filterCompleted} />
+          </Segment>
+        </Grid.Column>
+      </Grid>
     );
   }
 }
 
-export default graphql(gql`
+export const TodoOverviewQuery = gql`
   query TodoOverview {
     todos {
       ...TodoList_todo
     }
+
+    users {
+      ...NewTodoForm_user
+    }
   }
 
   ${TodoList.fragments.todo}
-`)(TodoOverview);
+  ${NewTodoForm.fragments.user}
+`;
+
+export default graphql(TodoOverviewQuery)(TodoOverview);

@@ -46,7 +46,7 @@ const PageLayout = ({children}) =>
       </Container>
     </Menu>
 
-    <Container text style={{ marginTop: '7em' }}>
+    <Container style={{ marginTop: '7em' }}>
       {children}
     </Container>
 
