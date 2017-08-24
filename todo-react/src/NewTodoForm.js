@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { gql, graphql } from 'react-apollo';
 import {
   Form,
+  Search,
 } from 'semantic-ui-react';
 import { addTodoUpdateFactory } from './TodoOverview';
 import Todo from './Todo';
@@ -10,41 +11,71 @@ class NewTodoForm extends Component {
   state = this._getInitialState();
 
   _onChange = (e, { name, value, checked }) => {
-    this.setState({ [name]: value || checked });
+    this.setState({
+      mutationParams: Object.assign({},
+        this.state.mutationParams,
+        { [name]: value || checked },
+      ),
+    });
   };
+
+  _onSearchChange = (event, { value }) => {
+    this.setState({
+      searchQuery: value,
+    });
+  }
+
+  _onResultSelect = (event, { result: { title, id } }) => {
+    this.setState({
+      mutationParams: Object.assign({},
+        this.state.mutationParams,
+        { creatorId: id },
+      ),
+      searchQuery: title,
+    });
+  }
 
   _onSubmit = e => {
     this.props.mutate({
-      variables: this.state,
+      variables: this.state.mutationParams,
       update: addTodoUpdateFactory(res => res.data.createTodo.todo),
-    });
-
-    this.setState(this._getInitialState())
+    })
+      .then(() => {
+        this.setState(this._getInitialState())
+      });
   };
 
   _getInitialState() {
     return {
-      title: '',
-      body: '',
-      creatorUsername: '',
-      completed: false,
+      mutationParams: {
+        title: '',
+        body: '',
+        creatorId: null,
+        completed: false,
+      },
+      searchQuery: '',
     };
   }
 
   render() {
+    const { users } = this.props;
+    const { mutationParams, searchQuery } = this.state;
     const {
       title,
       body,
       completed,
-      creatorUsername
-    } = this.state;
+    } = mutationParams;
 
-    const { users } = this.props;
-
-    const userOptions = users.map(user => ({
-      text: user.username,
-      value: user.username
-    }));
+    const searchResults = users
+      .filter(user => user.username.toLowerCase().indexOf(searchQuery.toLowerCase()) !== -1)
+      .map(user => {
+        const fullName = user.firstName + ' ' + user.lastName;
+        return {
+          title: user.username,
+          description: fullName !== ' ' ? fullName : null,
+          id: parseInt(user.id, 10),
+        }
+      });
 
     return (
       <Form onSubmit={this._onSubmit}>
@@ -63,14 +94,15 @@ class NewTodoForm extends Component {
           placeholder="I have to &hellip;"
           value={body}
         />
-        <Form.Select
-          name="creatorUsername"
-          onChange={this._onChange}
-          label="Creator"
-          placeholder="Creator"
-          options={userOptions}
-          value={creatorUsername}
-        />
+        <Form.Field>
+          <label>User</label>
+          <Search
+            onResultSelect={this._onResultSelect}
+            onSearchChange={this._onSearchChange}
+            results={searchResults}
+            value={searchQuery}
+          />
+        </Form.Field>
         <Form.Checkbox
           name="completed"
           onChange={this._onChange}
@@ -86,6 +118,7 @@ class NewTodoForm extends Component {
 NewTodoForm.fragments = {
   user: gql`
     fragment NewTodoForm_user on UserType {
+      id
       username
       firstName
       lastName
@@ -97,11 +130,11 @@ export default graphql(gql`
   mutation CreateTodo(
     $title: String!,
     $body: String!,
-    $creatorUsername: String!,
+    $creatorId: ID!,
     $completed: Boolean!) {
 
     createTodo(
-      creatorUsername: $creatorUsername,
+      creatorId: $creatorId,
       title: $title,
       body: $body,
       completed: $completed

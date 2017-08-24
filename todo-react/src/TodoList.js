@@ -9,7 +9,7 @@ import Todo from './Todo';
 const TodoList = ({ todos, filterCompleted }) => {
   todos = filterCompleted ? todos.filter(todo => todo.completed) : todos;
   return (
-    <Card.Group>
+    <Card.Group itemsPerRow={2} stackable>
       {todos
         .map((todo, i) => <Todo todo={todo} key={i} />)}
     </Card.Group>

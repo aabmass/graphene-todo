@@ -1,18 +1,18 @@
 import stringHash from 'string-hash';
 
 const colors = [
-  'pink',
-  'violet',
-  'purple',
-  'orange',
-  'yellow',
-  'black',
   'blue',
-  'brown',
-  'green',
-  'teal',
   'grey',
+  'brown',
+  'yellow',
+  'violet',
   'olive',
+  'orange',
+  'pink',
+  'purple',
+  'teal',
+  'black',
+  'green',
 ];
 
 const cache = {};

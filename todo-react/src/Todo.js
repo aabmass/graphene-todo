@@ -3,12 +3,13 @@ import './Todo.css'
 import { gql, graphql } from 'react-apollo';
 import { stringToSemanticColor } from './util';
 import {
+  Button,
   Card,
   Checkbox,
-  Label,
-  Grid,
   Icon,
+  Label,
 } from 'semantic-ui-react';
+import Controls from './Controls';
 
 const Todo = ({ todo, mutate }) => {
   const {
@@ -39,27 +40,28 @@ const Todo = ({ todo, mutate }) => {
   return (
     <Card fluid>
       <Card.Content>
-        <Card.Header>{title}</Card.Header>
+        <Card.Header className={completed ? 'completed' : null}>
+          {title}
+        </Card.Header>
         <Card.Description>{body}</Card.Description>
       </Card.Content>
       <Card.Content extra>
-        <Grid columns={2}>
-          <Grid.Column floated="left">
-            <Label
-              color={stringToSemanticColor(creator.username)}
-              ribbon>
-
-              <Icon name='user' /> {creator.username}
-            </Label>
-          </Grid.Column>
-          <Grid.Column floated="right">
-            <Checkbox
-              label="Completed"
-              checked={completed}
-              onChange={onToggle}
-            />
-          </Grid.Column>
-        </Grid>
+        <Label
+          color={stringToSemanticColor(creator.username)}
+          ribbon>
+          <Icon name='user' /> {creator.username}
+        </Label>
+        <Controls>
+          <Checkbox
+            label="Completed"
+            checked={completed}
+            onChange={onToggle}
+          />
+          <Button.Group basic>
+            <Button icon='pencil' />
+            <Button icon='trash' />
+          </Button.Group>
+        </Controls>
       </Card.Content>
     </Card>
   );

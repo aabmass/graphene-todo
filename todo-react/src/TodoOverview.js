@@ -35,14 +35,14 @@ class TodoOverview extends Component {
     }
 
     return (
-      <Grid columns={2}>
-        <Grid.Column>
+      <Grid stackable>
+        <Grid.Column width={4}>
           <Segment>
             <NewTodoForm users={users} />
           </Segment>
         </Grid.Column>
         
-        <Grid.Column>
+        <Grid.Column width={12}>
           <Segment loading={loading}>
             <p>{todos.length} todos</p>
             <div>
