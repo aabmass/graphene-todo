@@ -61,7 +61,7 @@ class TodoOverview extends Component {
   }
 }
 
-export const TodoOverviewQuery = gql`
+const TodoOverviewQuery = gql`
   query TodoOverview {
     todos {
       ...TodoList_todo
@@ -75,5 +75,18 @@ export const TodoOverviewQuery = gql`
   ${TodoList.fragments.todo}
   ${NewTodoForm.fragments.user}
 `;
+
+/**
+ * This HOF creates an Apollo update function for adding todos. Just pass
+ * a function that accesses the todo on the response from the mutation call.
+ */
+export function addTodoUpdateFactory(mutationAccessor) {
+  return (store, mutationRes) => {
+    const data = store.readQuery({ query: TodoOverviewQuery });
+    const todo = mutationAccessor(mutationRes);
+    data.todos.unshift(todo);
+    store.writeQuery({ query: TodoOverviewQuery, data });
+  }
+} 
 
 export default graphql(TodoOverviewQuery)(TodoOverview);

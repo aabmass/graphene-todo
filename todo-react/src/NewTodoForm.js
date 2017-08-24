@@ -3,7 +3,7 @@ import { gql, graphql } from 'react-apollo';
 import {
   Form,
 } from 'semantic-ui-react';
-import { TodoOverviewQuery } from './TodoOverview';
+import { addTodoUpdateFactory } from './TodoOverview';
 import Todo from './Todo';
 
 class NewTodoForm extends Component {
@@ -16,11 +16,7 @@ class NewTodoForm extends Component {
   _onSubmit = e => {
     this.props.mutate({
       variables: this.state,
-      update: (store, mutationRes) => {
-        const data = store.readQuery({ query: TodoOverviewQuery });
-        data.todos.unshift(mutationRes.data.createTodo.todo);
-        store.writeQuery({ query: TodoOverviewQuery, data });
-      },
+      update: addTodoUpdateFactory(res => res.data.createTodo.todo),
     });
 
     this.setState(this._getInitialState())
