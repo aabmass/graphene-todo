@@ -95,6 +95,20 @@ class UpdateTodo(graphene.Mutation):
 
         return UpdateTodo(todo)
 
+class DeleteTodo(graphene.Mutation):
+    class Input:
+        id = graphene.NonNull(graphene.ID)
+    
+    id = graphene.ID()
+
+    @staticmethod
+    def mutate(root, args, context, info):
+        id = args.pop('id')
+        todo = Todo.objects.get(pk=id)
+        todo.delete()
+
+        return DeleteTodo(id)
+
 
 class CreateTodo(graphene.Mutation):
     class Input:
@@ -126,3 +140,4 @@ class CreateTodo(graphene.Mutation):
 class TodoMutations(graphene.ObjectType):
     create_todo = CreateTodo.Field()
     update_todo = UpdateTodo.Field()
+    delete_todo = DeleteTodo.Field()
